@@ -1,3 +1,9 @@
+// Nome: types.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Define os contratos centrais do engine para logs estruturados, incluindo
+// entradas validadas, descritores de fonte, linhas brutas, políticas de invalidez,
+// repositórios e métricas compartilhadas pelo fluxo de ingestão.
 // Package logs contains the engine contracts for structured log ingestion.
 package logs
 

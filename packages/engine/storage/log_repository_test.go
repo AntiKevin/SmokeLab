@@ -1,3 +1,9 @@
+// Nome: log_repository_test.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Testa a persistência de logs estruturados no repositório SQL, validando
+// criação de registros, serialização de parâmetros, associação de fonte e leitura
+// dos dados gravados para proteger o contrato de armazenamento.
 package storage
 
 import (

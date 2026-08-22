@@ -1,3 +1,9 @@
+// Nome: http_mock_simulation.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Implementa a simulação de mocks HTTP no engine, resolvendo requisições
+// contra rotas, payloads e respostas configuradas para prever o resultado sem
+// depender de uma interface específica ou de execução externa.
 package HttpMock
 
 import (

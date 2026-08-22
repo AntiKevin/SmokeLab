@@ -1,3 +1,9 @@
+// Nome: logs_test.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Exercita os cenários da CLI de ingestão de logs, cobrindo validação
+// de configuração, seleção de fonte, escrita de resumo e integração básica com
+// persistência local sem duplicar as regras centrais do engine.
 package main
 
 import (

@@ -1,3 +1,9 @@
+// Nome: http_mock_execution_test.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Testa os cenários de execução dos mocks HTTP, verificando preparação,
+// respostas produzidas e tratamento de configurações inválidas para evitar regressões
+// no fluxo operacional do domínio.
 package HttpMock
 
 import "testing"

@@ -1,3 +1,9 @@
+// Nome: db_test.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Valida a infraestrutura de banco local, cobrindo abertura em memória,
+// criação de diretórios, configuração da conexão SQLite e cenários de erro esperados
+// antes que repositórios de domínio dependam dessa base.
 package localdb
 
 import (

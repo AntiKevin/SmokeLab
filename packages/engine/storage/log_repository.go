@@ -1,3 +1,9 @@
+// Nome: log_repository.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Implementa o repositório local de logs estruturados sobre banco SQL,
+// convertendo os contratos do engine em operações de persistência e mantendo a
+// lógica de armazenamento compartilhável fora das camadas de interface.
 package storage
 
 import (

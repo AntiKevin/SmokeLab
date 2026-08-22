@@ -1,3 +1,9 @@
+// Nome: http_mock_model_test.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Exercita o modelo de domínio dos mocks HTTP, garantindo que estruturas,
+// valores padrão e relações entre entidades representem corretamente os cenários
+// usados pelas etapas de validação, simulação e execução.
 package HttpMock
 
 import "testing"

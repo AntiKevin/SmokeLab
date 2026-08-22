@@ -1,3 +1,9 @@
+// Nome: source.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Implementa adaptadores de entrada usados pela CLI para transformar
+// stdin, arquivos e leitura contínua em fontes compatíveis com os contratos de
+// ingestão do engine, incluindo controle de linhas e limites de tamanho.
 // Package source adapts CLI input streams to the log engine's Source contract.
 package source
 

@@ -1,3 +1,9 @@
+// Nome: main.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Inicializa a aplicação desktop Wails, configurando janela, assets
+// embarcados, aparência e bindings que conectam o frontend visual aos métodos
+// expostos pela camada de aplicação.
 package main
 
 import (

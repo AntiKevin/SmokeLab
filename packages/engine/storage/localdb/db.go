@@ -1,3 +1,9 @@
+// Nome: db.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Fornece a infraestrutura genérica de banco local do engine, abrindo e
+// configurando conexões SQLite, definindo o caminho padrão e preparando diretórios
+// para uso por repositórios de domínio.
 // Package localdb provides the engine's generic local database infrastructure.
 package localdb
 

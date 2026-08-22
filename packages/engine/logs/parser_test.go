@@ -1,3 +1,9 @@
+// Nome: parser_test.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Cobre os cenários de parsing de logs estruturados no engine, incluindo
+// entradas válidas, payloads inválidos, campos ausentes e preservação de parâmetros
+// para reduzir regressões no contrato público do pacote.
 package logs
 
 import (

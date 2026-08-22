@@ -1,3 +1,9 @@
+// Nome: http_mock_simulation_test.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Valida a simulação de mocks HTTP, cobrindo correspondência de rotas,
+// seleção de payloads, respostas esperadas e falhas de configuração para garantir
+// que o comportamento simulado continue consistente.
 package HttpMock
 
 import "testing"

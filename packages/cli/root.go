@@ -1,3 +1,9 @@
+// Nome: root.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Define o comando raiz da CLI, registra os subcomandos disponíveis e
+// mantém a composição da interface de terminal separada das regras reutilizáveis
+// executadas pelos pacotes do engine.
 package main
 
 import (

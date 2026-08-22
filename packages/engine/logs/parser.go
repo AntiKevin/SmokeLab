@@ -1,3 +1,9 @@
+// Nome: parser.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Implementa o parsing de linhas NDJSON em registros estruturados de log,
+// validando campos obrigatórios, preservando parâmetros extras e normalizando dados
+// antes que o fluxo de ingestão envie entradas aceitas para persistência.
 package logs
 
 import (

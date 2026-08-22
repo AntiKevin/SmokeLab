@@ -1,3 +1,9 @@
+// Nome: migrate_test.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Testa o executor de migrações do banco local, garantindo aplicação em
+// ordem, idempotência, registro de versões e rollback quando uma migração falha
+// durante a preparação da infraestrutura de persistência.
 package localdb
 
 import (

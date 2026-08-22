@@ -1,3 +1,9 @@
+// Nome: logs.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Define os comandos de terminal para ingestão de logs estruturados,
+// traduzindo flags, fontes de entrada e opções operacionais em chamadas para o
+// engine, mantendo a CLI como camada de adaptação e apresentação.
 package main
 
 import (

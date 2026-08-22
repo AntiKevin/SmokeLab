@@ -1,3 +1,9 @@
+// Nome: ingest.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Coordena o fluxo de ingestão de logs estruturados no engine, lendo
+// fontes abstratas, aplicando parsing e política de registros inválidos, formando
+// lotes e delegando a persistência para o repositório configurado.
 package logs
 
 import (

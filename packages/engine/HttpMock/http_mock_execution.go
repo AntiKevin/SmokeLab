@@ -1,3 +1,9 @@
+// Nome: http_mock_execution.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Define estruturas e fluxos de execução dos mocks HTTP no engine,
+// preparando o comportamento validado para uso operacional e mantendo a regra
+// independente de detalhes de GUI ou CLI.
 package HttpMock
 
 import (

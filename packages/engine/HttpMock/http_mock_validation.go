@@ -1,3 +1,9 @@
+// Nome: http_mock_validation.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Concentra as regras de validação dos modelos de mock HTTP, verificando
+// consistência de IDs, rotas, payloads, códigos de resposta e configurações antes
+// que o engine permita simulação ou execução.
 package HttpMock
 
 import (

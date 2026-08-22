@@ -1,3 +1,9 @@
+// Nome: migrate.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Implementa o mecanismo genérico de migrações do banco local, registrando
+// versões aplicadas, executando scripts pendentes em transação e oferecendo uma base
+// reutilizável para schemas mantidos pelo engine.
 package localdb
 
 import (

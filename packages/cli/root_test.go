@@ -1,3 +1,9 @@
+// Nome: root_test.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Valida a montagem do comando raiz da CLI e garante que os comandos
+// esperados sejam registrados sem depender de execução real das regras de negócio
+// ou de detalhes internos do engine.
 package main
 
 import (

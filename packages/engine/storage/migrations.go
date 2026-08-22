@@ -1,4 +1,10 @@
 // Package storage provides persistent engine repositories backed by local storage.
+// Nome: migrations.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Declara as migrações específicas do domínio de armazenamento de logs,
+// mantendo a evolução do schema local no engine e separada dos comandos de terminal
+// ou da interface visual que apenas consomem esses dados.
 package storage
 
 import (

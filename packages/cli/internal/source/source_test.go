@@ -1,3 +1,9 @@
+// Nome: source_test.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Testa os adaptadores de fonte da CLI, garantindo leitura correta de
+// stdin, arquivos acompanhados em modo follow, linhas incompletas, cancelamento
+// por contexto e rejeição de entradas acima do limite configurado.
 package source
 
 import (

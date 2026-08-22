@@ -1,3 +1,9 @@
+// Nome: app.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Define a estrutura principal da aplicação visual em Wails, concentrando
+// o estado e os métodos expostos ao frontend para que a GUI possa interagir com
+// funcionalidades do aplicativo sem mover regras de negócio para a apresentação.
 package main
 
 import (

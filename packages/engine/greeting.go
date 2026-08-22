@@ -1,3 +1,9 @@
+// Nome: greeting.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Mantém uma funcionalidade simples de saudação no engine, servindo como
+// comportamento reutilizável exposto às interfaces sem acoplar a regra a detalhes
+// da GUI, CLI ou infraestrutura externa.
 package engine
 
 import "fmt"

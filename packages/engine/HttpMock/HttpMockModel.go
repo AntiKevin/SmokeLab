@@ -1,3 +1,9 @@
+// Nome: HttpMockModel.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Define o modelo de domínio dos mocks HTTP no engine, incluindo respostas,
+// payloads, rotas, cenários e tipos de comunicação usados para representar o
+// comportamento esperado antes da validação e execução.
 package HttpMock
 
 import (

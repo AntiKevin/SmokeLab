@@ -1,3 +1,9 @@
+// Nome: ingest_test.go
+// Autor: Kevin Rodrigues
+// Criado em: 2026-08-22
+// Descrição: Verifica o comportamento do fluxo de ingestão do engine, cobrindo
+// persistência em lote, métricas produzidas, tratamento de linhas inválidas e
+// interrupção adequada diante de erros de fonte ou repositório.
 package logs
 
 import (
