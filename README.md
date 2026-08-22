@@ -133,6 +133,49 @@ O comando equivalente, sem `Makefile`, e:
 go run ./packages/cli Kevin
 ```
 
+### Ingestao de logs estruturados
+
+A CLI tambem pode ingerir logs estruturados emitidos como NDJSON, ou seja, um
+objeto JSON completo por linha:
+
+```bash
+go run ./packages/cli logs ingest --stdin
+```
+
+Tambem e possivel ler um arquivo uma vez:
+
+```bash
+go run ./packages/cli logs ingest --file app.ndjson
+```
+
+Ou acompanhar novas linhas adicionadas ao arquivo:
+
+```bash
+go run ./packages/cli logs ingest --file app.ndjson --follow
+```
+
+Por padrao, os logs sao gravados no banco local da aplicacao dentro do diretorio
+de configuracao do usuario. Para escolher outro arquivo:
+
+```bash
+go run ./packages/cli logs ingest --file app.ndjson --db /tmp/smokelab.db
+```
+
+Cada linha deve conter os campos fixos obrigatorios `timestamp`, `level` e
+`message`. Todos os outros campos do objeto, como `context`, `service_name` e
+`global_event_name`, sao armazenados em `params` como JSON.
+
+Exemplo aceito:
+
+```json
+{"context":{"className":"NewRelicMetricsReporter","lockKey":"newrelic-payments-metrics","method":"report"},"global_event_name":"CRON_LOCK_ACQUIRED","level":"info","message":"[CronWithLock] Lock acquired (key: newrelic-payments-metrics). Executing routine...","service_name":"service-payments-undefined","timestamp":"2026-08-21T19:38:00.011Z"}
+```
+
+O formato colorido de `console.log`/pretty-print com ANSI, chaves sem aspas e
+strings concatenadas nao faz parte deste primeiro corte. Se houver linhas
+invalidas, o comportamento padrao e falhar; use `--on-invalid skip` para
+continuar e contabilizar as linhas rejeitadas.
+
 ## Testes
 
 Rode todos os testes Go:
