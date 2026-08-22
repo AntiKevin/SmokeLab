@@ -1,3 +1,14 @@
-- a feature de mocks de serviços http e (futurament serviços de fila)
-- a feature de teste de API, com fixture, payload, url, e mocks
-- a feature de orquestração de nós de mocks e testes de aplicação
+# ROADMAP
+
+##  Extração de logs estruturados do Terminal
+>Data: 22/08/2026
+
+Essa feature visa extrair logs estruturados diretamente do terminal de um app local, 
+ou extrair de um arquivo de logs atualizado localmente.
+
+a extração deve ser feita pela cli, mas processada pela engine, e armazenada em banco de dados local, para futura feature de leitura dos logs via GUI (não esta no escopo atual)
+
+##  Leitura e exploração dinâmica de Logs via GUI
+>Data: ??
+
+Essa feature visa, explorar, visualizar, pesquisar e filtrar os logs estruturados na interface.
