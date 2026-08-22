@@ -52,6 +52,37 @@ func TestIngestServiceBatchesSkipsInvalidLinesAndFlushesFinalBatch(t *testing.T)
 	}
 }
 
+func TestIngestServicePersistsEachLineBeforeReadingNextByDefault(t *testing.T) {
+	t.Parallel()
+
+	repository := &fakeRepository{}
+	source := &fakeSource{
+		lines: []SourceLine{
+			{Number: 1, Data: []byte(`{"timestamp":"2026-08-22T13:14:15Z","level":"info","message":"one"}`)},
+			{Number: 2, Data: []byte(`{"timestamp":"2026-08-22T13:14:16Z","level":"info","message":"two"}`)},
+		},
+		beforeNext: func(call int) {
+			persisted := len(repository.batches)
+			if call > 1 && persisted != call-1 {
+				t.Fatalf("before source read %d, persisted batches = %d, want %d", call, persisted, call-1)
+			}
+		},
+	}
+
+	result, err := NewIngestService(repository).Ingest(context.Background(), source, IngestOptions{})
+	if err != nil {
+		t.Fatalf("Ingest returned error: %v", err)
+	}
+	if result.EntriesPersisted != 2 || result.BatchesFlushed != 2 {
+		t.Fatalf("unexpected result: %#v", result)
+	}
+	for index, batch := range repository.batches {
+		if len(batch) != 1 {
+			t.Fatalf("batch %d contains %d entries, want 1", index, len(batch))
+		}
+	}
+}
+
 func TestIngestServiceFailsOnInvalidLine(t *testing.T) {
 	t.Parallel()
 
@@ -97,6 +128,7 @@ type fakeSource struct {
 	descriptor SourceDescriptor
 	lines      []SourceLine
 	nextCalls  int
+	beforeNext func(call int)
 }
 
 func (s *fakeSource) Descriptor() SourceDescriptor {
@@ -105,6 +137,9 @@ func (s *fakeSource) Descriptor() SourceDescriptor {
 
 func (s *fakeSource) Next(ctx context.Context) (SourceLine, error) {
 	s.nextCalls++
+	if s.beforeNext != nil {
+		s.beforeNext(s.nextCalls)
+	}
 	if err := ctx.Err(); err != nil {
 		return SourceLine{}, err
 	}

@@ -11,10 +11,46 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 
 	"SmokeLab/packages/engine/logs"
 )
+
+func TestIngestProgressReportsCommittedEntriesInInteractiveTerminal(t *testing.T) {
+	t.Parallel()
+
+	var output bytes.Buffer
+	now := time.Date(2026, time.August, 22, 12, 0, 0, 0, time.UTC)
+	progress := &ingestProgress{
+		writer:  &output,
+		enabled: true,
+		now:     func() time.Time { return now },
+	}
+	if err := progress.start(); err != nil {
+		t.Fatalf("start returned error: %v", err)
+	}
+	progress.addPersisted(1)
+	progress.addPersisted(1)
+	now = now.Add(progressRefreshInterval)
+	progress.addPersisted(1)
+	if err := progress.finish(logs.IngestResult{LinesRead: 3, EntriesAccepted: 3, EntriesPersisted: 3, BatchesFlushed: 3}); err != nil {
+		t.Fatalf("finish returned error: %v", err)
+	}
+
+	got := output.String()
+	for _, want := range []string{
+		"\ringesting logs: persisted=0",
+		"\ringesting logs: persisted=1",
+		"\ringesting logs: persisted=3",
+		"\ringested: read=3 accepted=3 persisted=3 invalid=0 skipped=0 batches=3\n",
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("progress output %q does not contain %q", got, want)
+		}
+	}
+}
 
 func TestValidateIngestConfig(t *testing.T) {
 	t.Parallel()

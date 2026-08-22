@@ -16,7 +16,8 @@ import (
 	"time"
 )
 
-const defaultBatchSize = 100
+// DefaultBatchSize persists each accepted line as soon as it is read.
+const DefaultBatchSize = 1
 
 // LogEntry is one validated structured log record.
 type LogEntry struct {
@@ -75,7 +76,8 @@ const (
 	SkipInvalid = InvalidPolicySkip
 )
 
-// IngestOptions configures one ingestion run. A zero BatchSize uses 100.
+// IngestOptions configures one ingestion run. A zero BatchSize uses
+// DefaultBatchSize, persisting each accepted line immediately.
 // The zero InvalidPolicy fails on invalid input.
 type IngestOptions struct {
 	BatchSize     int
@@ -115,7 +117,7 @@ func (e InvalidLine) Unwrap() error {
 
 func (o IngestOptions) normalized() (IngestOptions, error) {
 	if o.BatchSize <= 0 {
-		o.BatchSize = defaultBatchSize
+		o.BatchSize = DefaultBatchSize
 	}
 
 	if o.InvalidPolicy != InvalidPolicyFail && o.InvalidPolicy != InvalidPolicySkip {
