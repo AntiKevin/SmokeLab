@@ -12,6 +12,8 @@ Formato:
 
 O escopo e opcional, mas deve ser usado sempre que a mudanca estiver limitada a um modulo especifico.
 
+OS COMMITS devem permanecer em inglês
+
 Exemplos:
 
 ```text
