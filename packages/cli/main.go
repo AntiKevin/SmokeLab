@@ -1,17 +1,19 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
-
-	"SmokeLab/packages/engine"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
-	name := "World"
-	if len(os.Args) > 1 {
-		name = os.Args[1]
-	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
-	fmt.Println(engine.NewGreetingService().Greet(name))
+	if err := newRootCommand().ExecuteContext(ctx); err != nil {
+		fmt.Fprintln(os.Stderr, "error:", err)
+		os.Exit(1)
+	}
 }
