@@ -2,6 +2,8 @@
 
 > Uma bancada modular de ferramentas para o fluxo de trabalho de desenvolvedores.
 
+
+
 SmokeLab e uma aplicacao local-first que reune utilitarios de desenvolvimento em
 um unico motor reutilizavel. O projeto foi desenhado para oferecer a mesma regra
 de negocio por uma aplicacao desktop e por linha de comando, sem duplicar
@@ -13,6 +15,8 @@ e reproduzir cenarios de integracao, mais simples de executar e manter.
 > [!IMPORTANT]
 > O SmokeLab esta em desenvolvimento ativo. A ingestao de logs pela CLI ja e
 > funcional; a interface desktop e outras ferramentas ainda estao evoluindo.
+
+<img src="./docs/images/img.png">
 
 ## Recursos
 
