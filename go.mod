@@ -5,6 +5,7 @@ go 1.25.0
 require (
 	github.com/spf13/cobra v1.10.2
 	github.com/wailsapp/wails/v2 v2.14.0
+	golang.org/x/term v0.44.0
 	modernc.org/sqlite v1.57.0
 )
 

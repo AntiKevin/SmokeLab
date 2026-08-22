@@ -15,14 +15,12 @@ import (
 
 func newRootCommand() *cobra.Command {
 	root := &cobra.Command{
-		Use:           "smokelab [name]",
-		Short:         "SmokeLab command-line interface",
+		Use:           "smokelab",
+		Short:         "A modular toolbox for developer workflows",
 		SilenceErrors: true,
 		SilenceUsage:  true,
-		Args:          cobra.MaximumNArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return greet(cmd, args)
-		},
+		Args:          cobra.NoArgs,
+		RunE:          showWelcome,
 	}
 
 	root.AddCommand(newGreetCommand())

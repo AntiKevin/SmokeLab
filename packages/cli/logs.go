@@ -64,15 +64,6 @@ func newIngestProgress(writer io.Writer) *ingestProgress {
 	}
 }
 
-func isTerminalWriter(writer io.Writer) bool {
-	file, ok := writer.(*os.File)
-	if !ok {
-		return false
-	}
-	info, err := file.Stat()
-	return err == nil && info.Mode()&os.ModeCharDevice != 0
-}
-
 func (p *ingestProgress) start() error {
 	if !p.enabled {
 		return nil
