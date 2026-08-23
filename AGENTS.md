@@ -1,5 +1,16 @@
 # AGENTS.md
 
+## Principais principios do projeto
+
+É de extrema importância que todas as modificações feitas no projeto 
+tenham base nesses principios pra não gerar um código sujo e dificil de manter
+
+#### 1. DRY
+Dont Repeat Your Self
+
+#### 2. KISS
+Keep It Simple, Stupid
+
 ## Regras do projeto
 
 Este projeto deve manter a arquitetura modular baseada em tres pacotes principais:
