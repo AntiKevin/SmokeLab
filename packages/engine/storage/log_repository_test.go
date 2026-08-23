@@ -40,6 +40,28 @@ func TestLogMigrationIsIdempotent(t *testing.T) {
 		t.Fatalf("log migration count = %d, want 1", count)
 	}
 
+	var migrationCount int
+	if err := db.QueryRow("SELECT COUNT(*) FROM localdb_migrations").Scan(&migrationCount); err != nil {
+		t.Fatalf("count all log migrations: %v", err)
+	}
+	if migrationCount != 3 {
+		t.Fatalf("migration count = %d, want 3", migrationCount)
+	}
+	for _, index := range []string{
+		"logs_level_idx",
+		"logs_source_descriptor_idx",
+		"logs_timestamp_order_idx",
+		"logs_captured_at_order_idx",
+	} {
+		var indexCount int
+		if err := db.QueryRow("SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND name = ?", index).Scan(&indexCount); err != nil {
+			t.Fatalf("find index %q: %v", index, err)
+		}
+		if indexCount != 1 {
+			t.Fatalf("index %q count = %d, want 1", index, indexCount)
+		}
+	}
+
 	if _, err := db.Exec(`INSERT INTO logs (
         timestamp, level, message, source_kind, source_name, source_id,
         line_number, captured_at, params
@@ -48,6 +70,27 @@ func TestLogMigrationIsIdempotent(t *testing.T) {
 		1, "2026-08-22T12:00:01Z", "{}",
 	); err != nil {
 		t.Fatalf("insert into migrated logs table: %v", err)
+	}
+}
+
+func TestLogExplorationIndexesUpgradeExistingSchema(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	db := openTestDatabase(t, ctx)
+	if err := localdb.Migrate(ctx, db, migrations[:1]); err != nil {
+		t.Fatalf("apply existing schema: %v", err)
+	}
+	if err := Migrate(ctx, db); err != nil {
+		t.Fatalf("upgrade log schema: %v", err)
+	}
+
+	var migrationName string
+	if err := db.QueryRow("SELECT name FROM localdb_migrations WHERE version = ?", 2).Scan(&migrationName); err != nil {
+		t.Fatalf("read exploration migration: %v", err)
+	}
+	if migrationName != "index log exploration filters" {
+		t.Fatalf("migration 2 name = %q", migrationName)
 	}
 }
 

@@ -35,6 +35,22 @@ var migrations = []localdb.Migration{
 			"CREATE INDEX IF NOT EXISTS logs_source_idx ON logs (source_kind, source_id)",
 		},
 	},
+	{
+		Version: 2,
+		Name:    "index log exploration filters",
+		Statements: []string{
+			"CREATE INDEX IF NOT EXISTS logs_level_idx ON logs (level)",
+			"CREATE INDEX IF NOT EXISTS logs_source_descriptor_idx ON logs (source_kind, source_name, source_id)",
+		},
+	},
+	{
+		Version: 3,
+		Name:    "index log exploration ordering",
+		Statements: []string{
+			"CREATE INDEX IF NOT EXISTS logs_timestamp_order_idx ON logs (" + logTimestampOrderExpressionV3 + ", id)",
+			"CREATE INDEX IF NOT EXISTS logs_captured_at_order_idx ON logs (" + logCapturedAtOrderExpressionV3 + ", id)",
+		},
+	},
 }
 
 // Migrate applies all local storage schema migrations.
