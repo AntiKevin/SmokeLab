@@ -24,14 +24,8 @@ func NewReadService(repository Reader) *ReadService {
 
 // List returns one normalized, deterministic page of logs.
 func (s *ReadService) List(ctx context.Context, request ListLogsRequest) (LogPage, error) {
-	if ctx == nil {
-		return LogPage{}, errors.New("log read context is required")
-	}
-	if err := ctx.Err(); err != nil {
+	if err := s.ready(ctx); err != nil {
 		return LogPage{}, err
-	}
-	if s == nil || s.repository == nil {
-		return LogPage{}, errors.New("log read repository is required")
 	}
 
 	normalized, err := NormalizeListLogsRequest(request)
@@ -47,14 +41,8 @@ func (s *ReadService) List(ctx context.Context, request ListLogsRequest) (LogPag
 
 // Overview returns aggregate metadata for all persisted logs.
 func (s *ReadService) Overview(ctx context.Context) (LogOverview, error) {
-	if ctx == nil {
-		return LogOverview{}, errors.New("log read context is required")
-	}
-	if err := ctx.Err(); err != nil {
+	if err := s.ready(ctx); err != nil {
 		return LogOverview{}, err
-	}
-	if s == nil || s.repository == nil {
-		return LogOverview{}, errors.New("log read repository is required")
 	}
 
 	overview, err := s.repository.Overview(ctx)
@@ -62,4 +50,17 @@ func (s *ReadService) Overview(ctx context.Context) (LogOverview, error) {
 		return LogOverview{}, fmt.Errorf("read log overview: %w", err)
 	}
 	return overview, nil
+}
+
+func (s *ReadService) ready(ctx context.Context) error {
+	if ctx == nil {
+		return errors.New("log read context is required")
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if s == nil || s.repository == nil {
+		return errors.New("log read repository is required")
+	}
+	return nil
 }

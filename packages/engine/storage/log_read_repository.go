@@ -30,30 +30,15 @@ var _ logs.Reader = (*LogReadRepository)(nil)
 
 // NewLogReadRepository applies pending migrations and creates a read repository.
 func NewLogReadRepository(ctx context.Context, db *sql.DB) (*LogReadRepository, error) {
-	if ctx == nil {
-		return nil, errors.New("log read repository context is required")
-	}
-	if db == nil {
-		return nil, errors.New("local database is required")
-	}
-	if err := ctx.Err(); err != nil {
+	if err := prepareLogDatabase(ctx, db, "log read repository"); err != nil {
 		return nil, err
-	}
-	if err := Migrate(ctx, db); err != nil {
-		return nil, fmt.Errorf("prepare log read repository: %w", err)
 	}
 	return &LogReadRepository{db: db}, nil
 }
 
 // List returns a bounded page and its matching total from one read transaction.
 func (r *LogReadRepository) List(ctx context.Context, request logs.ListLogsRequest) (logs.LogPage, error) {
-	if ctx == nil {
-		return logs.LogPage{}, errors.New("log list context is required")
-	}
-	if r == nil || r.db == nil {
-		return logs.LogPage{}, errors.New("log read repository is not initialized")
-	}
-	if err := ctx.Err(); err != nil {
+	if err := r.ready(ctx, "log list"); err != nil {
 		return logs.LogPage{}, err
 	}
 
@@ -121,13 +106,7 @@ func (r *LogReadRepository) List(ctx context.Context, request logs.ListLogsReque
 
 // Overview summarizes the entire persisted log collection.
 func (r *LogReadRepository) Overview(ctx context.Context) (logs.LogOverview, error) {
-	if ctx == nil {
-		return logs.LogOverview{}, errors.New("log overview context is required")
-	}
-	if r == nil || r.db == nil {
-		return logs.LogOverview{}, errors.New("log read repository is not initialized")
-	}
-	if err := ctx.Err(); err != nil {
+	if err := r.ready(ctx, "log overview"); err != nil {
 		return logs.LogOverview{}, err
 	}
 
@@ -204,6 +183,16 @@ func (r *LogReadRepository) Overview(ctx context.Context) (logs.LogOverview, err
 		return logs.LogOverview{}, fmt.Errorf("finish log overview: %w", err)
 	}
 	return overview, nil
+}
+
+func (r *LogReadRepository) ready(ctx context.Context, operation string) error {
+	if ctx == nil {
+		return fmt.Errorf("%s context is required", operation)
+	}
+	if r == nil || r.db == nil {
+		return errors.New("log read repository is not initialized")
+	}
+	return ctx.Err()
 }
 
 func buildLogPredicates(filter logs.LogFilter) ([]string, []any) {

@@ -40,17 +40,27 @@ var _ logs.Repository = (*LogRepository)(nil)
 
 // NewLogRepository applies pending storage migrations and creates a log repository.
 func NewLogRepository(ctx context.Context, db *sql.DB) (*LogRepository, error) {
-	if ctx == nil {
-		return nil, errors.New("log repository context is required")
-	}
-	if db == nil {
-		return nil, errors.New("local database is required")
-	}
-	if err := Migrate(ctx, db); err != nil {
-		return nil, fmt.Errorf("prepare log repository: %w", err)
+	if err := prepareLogDatabase(ctx, db, "log repository"); err != nil {
+		return nil, err
 	}
 
 	return &LogRepository{db: db, now: time.Now}, nil
+}
+
+func prepareLogDatabase(ctx context.Context, db *sql.DB, repositoryName string) error {
+	if ctx == nil {
+		return fmt.Errorf("%s context is required", repositoryName)
+	}
+	if db == nil {
+		return errors.New("local database is required")
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if err := Migrate(ctx, db); err != nil {
+		return fmt.Errorf("prepare %s: %w", repositoryName, err)
+	}
+	return nil
 }
 
 // Store persists entries atomically as one batch.
