@@ -6,7 +6,15 @@ The structure is:
 
 * bin - Output directory
 * darwin - macOS specific files
+* linux - Linux packaging files
 * windows - Windows specific files
+
+## Linux
+
+The `linux` directory contains the nFPM configuration and desktop entry used by
+`make package-linux` to generate a Debian package containing the GUI and CLI.
+Use `make package-linux-no-cache` to force a clean Wails build backed by a fresh,
+temporary Go build cache.
 
 ## Mac
 

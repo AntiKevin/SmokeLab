@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=SmokeLab
+Comment=Explore logs estruturados armazenados localmente
+Exec=/usr/lib/smokelab/SmokeLab
+Icon=smokelab
+Terminal=false
+Categories=Development;
+Keywords=logs;development;terminal;
+StartupNotify=true
+StartupWMClass=smokelab
