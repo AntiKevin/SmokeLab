@@ -14,7 +14,8 @@ e reproduzir cenarios de integracao, mais simples de executar e manter.
 
 > [!IMPORTANT]
 > O SmokeLab esta em desenvolvimento ativo. A ingestao de logs pela CLI ja e
-> funcional; a interface desktop e outras ferramentas ainda estao evoluindo.
+> funcional, e os registros persistidos ja podem ser explorados pela interface
+> desktop. Outras ferramentas ainda estao evoluindo.
 
 <img src="./docs/images/img.png">
 
@@ -26,8 +27,9 @@ e reproduzir cenarios de integracao, mais simples de executar e manter.
 | Persistencia local em SQLite | Funcional | Engine |
 | Leitura de `stdin`, arquivo e modo `follow` | Funcional | CLI |
 | Progresso de ingestao em tempo real | Funcional | CLI |
+| Exploracao, busca e filtros de logs | Funcional | GUI e engine |
 | Motor de mocks HTTP | Experimental e pausado | Engine |
-| Workspace desktop | Em desenvolvimento | GUI |
+| Workspace desktop de logs | Funcional | GUI |
 
 ### Principios do projeto
 
@@ -236,6 +238,20 @@ Inicie Wails e Vite em modo de desenvolvimento:
 make dev
 ```
 
+Ao abrir a aplicacao, o workspace usa o mesmo banco SQLite padrao da CLI e
+carrega os logs mais recentes. A tela permite:
+
+- consultar o total, as contagens por nivel, as fontes e o intervalo temporal;
+- pesquisar texto na mensagem e combinar filtros de nivel, origem e data/hora;
+- navegar por paginas com ordenacao deterministica dos registros mais recentes;
+- selecionar um log para inspecionar origem, linha, horario de captura e
+  `params` completos;
+- atualizar os dados ou limpar todos os filtros sem recarregar a janela.
+
+Um banco ainda inexistente e criado pela infraestrutura local do engine e
+aparece como um estado vazio amigavel. A ingestao continua sendo feita somente
+pela CLI.
+
 `make run` e um alias para o mesmo comando. Argumentos adicionais podem ser
 repassados ao Wails com `ARGS`:
 
@@ -263,12 +279,58 @@ Nesse modo, bindings de backend gerados pelo Wails nao ficam disponiveis. Use
 | `make gui-build` | Compila apenas o frontend |
 | `make cli` | Abre a tela inicial da CLI; aceita argumentos em `ARGS` |
 | `make test` | Executa todos os testes Go |
+| `make package-linux` | Gera um instalador `.deb` com a GUI e a CLI |
+| `make package-linux-no-cache` | Recompila tudo sem reutilizar cache e gera o `.deb` |
 
 Argumentos do `go test` tambem podem ser repassados:
 
 ```bash
 make test ARGS="-race -count=1"
 ```
+
+### Instalador Linux
+
+O pacote Linux inclui a aplicacao desktop e o comando `smokelab`. O nFPM e
+baixado em uma versao fixada para `build/tools` na primeira execucao, sem
+instalacao global e sem GoReleaser.
+
+Gere o instalador para a arquitetura atual:
+
+```bash
+make package-linux
+```
+
+Para descartar os artefatos anteriores e compilar com um cache Go temporario e
+vazio, use:
+
+```bash
+make package-linux-no-cache
+```
+
+O cache temporario e removido automaticamente ao final do comando.
+
+O arquivo resultante fica em `build/packages`, por exemplo:
+
+```text
+build/packages/smokelab_0.1.0_amd64.deb
+```
+
+Informe outra versao quando necessario:
+
+```bash
+make package-linux PACKAGE_VERSION=0.2.0
+```
+
+Instale e remova o pacote em sistemas Debian/Ubuntu com:
+
+```bash
+sudo apt install ./build/packages/smokelab_0.1.0_amd64.deb
+sudo apt remove smokelab
+```
+
+O pacote instala a GUI no menu de aplicativos e disponibiliza a CLI em
+`/usr/bin/smokelab`. A compilacao deve ser executada nativamente na arquitetura
+de destino por causa das dependencias graficas do Wails.
 
 ## Adicionando uma ferramenta
 
