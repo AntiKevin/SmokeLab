@@ -112,3 +112,23 @@ func TestFollowReadsSeveralShortLinesFromOneChunk(t *testing.T) {
 		}
 	}
 }
+
+func TestFollowNormalizesCRLFForBufferedLines(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "application.ndjson")
+	if err := os.WriteFile(path, []byte("first\r\nsecond\r\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	follow, err := OpenFollow(path, 1024, time.Millisecond)
+	if err != nil {
+		t.Fatalf("OpenFollow() error = %v", err)
+	}
+
+	for number, want := range []string{"first", "second"} {
+		line, nextErr := follow.Next(context.Background())
+		if nextErr != nil || line.Number != number+1 || string(line.Data) != want {
+			t.Fatalf("line %d = %#v, %v", number+1, line, nextErr)
+		}
+	}
+}

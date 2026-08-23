@@ -136,13 +136,8 @@ func (s *Follow) Next(ctx context.Context) (logs.SourceLine, error) {
 }
 
 func (s *Follow) readLine() ([]byte, bool, error) {
-	if index := newlineIndex(s.pending); index >= 0 {
-		if index > s.maxLineBytes {
-			return nil, false, ErrLineTooLong
-		}
-		line := append([]byte(nil), s.pending[:index]...)
-		s.pending = append(s.pending[:0], s.pending[index+1:]...)
-		return trimCarriageReturn(line), true, nil
+	if line, found, err := takeCompleteLine(&s.pending, s.maxLineBytes); found || err != nil {
+		return line, found, err
 	}
 
 	info, err := os.Stat(s.path)
@@ -173,13 +168,8 @@ func (s *Follow) readLine() ([]byte, bool, error) {
 		if n > 0 {
 			s.offset += int64(n)
 			s.pending = append(s.pending, chunk[:n]...)
-			if index := newlineIndex(s.pending); index >= 0 {
-				if index > s.maxLineBytes {
-					return nil, false, ErrLineTooLong
-				}
-				line := append([]byte(nil), s.pending[:index]...)
-				s.pending = append(s.pending[:0], s.pending[index+1:]...)
-				return trimCarriageReturn(line), true, nil
+			if line, found, lineErr := takeCompleteLine(&s.pending, s.maxLineBytes); found || lineErr != nil {
+				return line, found, lineErr
 			}
 			if len(s.pending) > s.maxLineBytes {
 				return nil, false, ErrLineTooLong
@@ -269,6 +259,22 @@ func trimCarriageReturn(data []byte) []byte {
 		return data[:len(data)-1]
 	}
 	return data
+}
+
+// takeCompleteLine removes and returns the next newline-terminated line.
+// Keeping this operation in one place makes every follow polling cycle apply
+// the same size limit and CRLF normalization.
+func takeCompleteLine(pending *[]byte, maxLineBytes int) ([]byte, bool, error) {
+	index := newlineIndex(*pending)
+	if index < 0 {
+		return nil, false, nil
+	}
+	if index > maxLineBytes {
+		return nil, false, ErrLineTooLong
+	}
+	line := append([]byte(nil), (*pending)[:index]...)
+	*pending = append((*pending)[:0], (*pending)[index+1:]...)
+	return trimCarriageReturn(line), true, nil
 }
 
 func min(left, right int) int {
