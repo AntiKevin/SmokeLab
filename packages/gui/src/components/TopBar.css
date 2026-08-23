@@ -4,9 +4,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(22, 222, 232, 0.22);
-    background: #08181c;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+    border-bottom: 1px solid #292929;
+    background: #080808;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.025) inset;
     user-select: none;
 }
 
@@ -26,7 +26,7 @@
     display: flex;
     align-items: baseline;
     gap: 10px;
-    color: #f4fdff;
+    color: #e8e8e8;
     font-size: 13px;
     font-weight: 700;
 }
@@ -51,7 +51,7 @@
     border: 0;
     border-left: 1px solid rgba(255, 255, 255, 0.04);
     background: transparent;
-    color: #b8dce2;
+    color: #8a8a8a;
     cursor: pointer;
 }
 
@@ -99,8 +99,8 @@
 }
 
 .window-action:hover {
-    background: rgba(22, 222, 232, 0.12);
-    color: #16dee8;
+    background: #171717;
+    color: #8bcf7b;
 }
 
 .window-action.close:hover {
