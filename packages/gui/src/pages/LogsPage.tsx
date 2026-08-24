@@ -10,7 +10,7 @@ import "./LogsPage.css";
 
 const PAGE_SIZE = 25;
 const EMPTY_PAGE = new models.LogPage({items: [], total: 0, page: 1, pageSize: PAGE_SIZE, totalPages: 0});
-const EMPTY_OVERVIEW = new models.LogOverview({total: 0, byLevel: [], sources: []});
+const EMPTY_OVERVIEW = new models.LogOverview({total: 0, byLevel: [], applications: [], sources: []});
 
 function LogsPage() {
     const [overview, setOverview] = useState<LogOverview>(EMPTY_OVERVIEW);
@@ -18,6 +18,7 @@ function LogsPage() {
     const [searchInput, setSearchInput] = useState("");
     const [search, setSearch] = useState("");
     const [level, setLevel] = useState("");
+    const [application, setApplication] = useState("");
     const [source, setSource] = useState("");
     const [from, setFrom] = useState("");
     const [to, setTo] = useState("");
@@ -74,6 +75,7 @@ function LogsPage() {
             filter: {
                 search,
                 levels: level ? [level] : [],
+                applications: application ? [application] : [],
                 sources: selectedSource ? [selectedSource] : [],
                 from: toRFC3339(from),
                 to: toRFC3339(to),
@@ -109,14 +111,15 @@ function LogsPage() {
         };
     // pageData is output, not a query input.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [search, level, selectedSource, from, to, page, refreshToken]);
+    }, [search, level, application, selectedSource, from, to, page, refreshToken]);
 
-    const hasFilters = searchInput !== "" || level !== "" || source !== "" || from !== "" || to !== "";
+    const hasFilters = searchInput !== "" || level !== "" || application !== "" || source !== "" || from !== "" || to !== "";
 
     function clearFilters() {
         setSearchInput("");
         setSearch("");
         setLevel("");
+        setApplication("");
         setSource("");
         setFrom("");
         setTo("");
@@ -160,12 +163,14 @@ function LogsPage() {
             overview={overview}
             search={searchInput}
             level={level}
+            application={application}
             source={source}
             from={from}
             to={to}
             showDates={showDates}
             onSearchChange={setSearchInput}
             onLevelChange={(value) => { setLevel(value); setPage(1); }}
+            onApplicationChange={(value) => { setApplication(value); setPage(1); }}
             onSourceChange={(value) => { setSource(value); setPage(1); }}
             onFromChange={(value) => { setFrom(value); setPage(1); }}
             onToChange={(value) => { setTo(value); setPage(1); }}

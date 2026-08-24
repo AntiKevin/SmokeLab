@@ -33,6 +33,7 @@ export namespace logs {
 	export class LogFilter {
 	    search?: string;
 	    levels: string[];
+	    applications: string[];
 	    sources: LogSource[];
 	    // Go type: time
 	    from?: any;
@@ -47,6 +48,7 @@ export namespace logs {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.search = source["search"];
 	        this.levels = source["levels"];
+	        this.applications = source["applications"];
 	        this.sources = this.convertValues(source["sources"], LogSource);
 	        this.from = this.convertValues(source["from"], null);
 	        this.to = this.convertValues(source["to"], null);
@@ -112,6 +114,7 @@ export namespace logs {
 	export class LogOverview {
 	    total: number;
 	    byLevel: LevelCount[];
+	    applications: string[];
 	    sources: LogSource[];
 	    // Go type: time
 	    oldestTimestamp?: any;
@@ -126,6 +129,7 @@ export namespace logs {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.total = source["total"];
 	        this.byLevel = this.convertValues(source["byLevel"], LevelCount);
+	        this.applications = source["applications"];
 	        this.sources = this.convertValues(source["sources"], LogSource);
 	        this.oldestTimestamp = this.convertValues(source["oldestTimestamp"], null);
 	        this.newestTimestamp = this.convertValues(source["newestTimestamp"], null);
@@ -155,6 +159,7 @@ export namespace logs {
 	    timestamp: any;
 	    level: string;
 	    message: string;
+	    application: string;
 	    source: LogSource;
 	    lineNumber: number;
 	    // Go type: time
@@ -171,6 +176,7 @@ export namespace logs {
 	        this.timestamp = this.convertValues(source["timestamp"], null);
 	        this.level = source["level"];
 	        this.message = source["message"];
+	        this.application = source["application"];
 	        this.source = this.convertValues(source["source"], LogSource);
 	        this.lineNumber = source["lineNumber"];
 	        this.capturedAt = this.convertValues(source["capturedAt"], null);

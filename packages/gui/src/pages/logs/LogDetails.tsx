@@ -24,6 +24,7 @@ export function LogDetails({log, onClose}: { log: LogRecord; onClose(): void }) 
             <dl>
                 <div><dt>Timestamp</dt><dd>{formatDate(log.timestamp)}</dd></div>
                 <div><dt>Capturado</dt><dd>{formatDate(log.capturedAt)}</dd></div>
+                <div><dt>Aplicação</dt><dd>{log.application}</dd></div>
                 <div><dt>Origem</dt><dd>{sourceLabel(log.source)}</dd></div>
                 <div><dt>ID origem</dt><dd>{log.source.id || "—"}</dd></div>
                 <div><dt>Linha</dt><dd>{log.lineNumber || "—"}</dd></div>

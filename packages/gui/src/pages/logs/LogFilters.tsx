@@ -5,12 +5,14 @@ type LogFiltersProps = {
     overview: LogOverview;
     search: string;
     level: string;
+    application: string;
     source: string;
     from: string;
     to: string;
     showDates: boolean;
     onSearchChange(value: string): void;
     onLevelChange(value: string): void;
+    onApplicationChange(value: string): void;
     onSourceChange(value: string): void;
     onFromChange(value: string): void;
     onToChange(value: string): void;
@@ -19,7 +21,7 @@ type LogFiltersProps = {
 };
 
 export function LogFilters(props: LogFiltersProps) {
-    const hasFilters = props.search !== "" || props.level !== "" || props.source !== "" || props.from !== "" || props.to !== "";
+    const hasFilters = props.search !== "" || props.level !== "" || props.application !== "" || props.source !== "" || props.from !== "" || props.to !== "";
 
     return <>
         <section className="filter-bar" aria-label="Filtros de logs">
@@ -32,6 +34,13 @@ export function LogFilters(props: LogFiltersProps) {
                 <select value={props.level} onChange={(event) => props.onLevelChange(event.target.value)}>
                     <option value="">Todos os níveis</option>
                     {props.overview.byLevel.map((item) => <option key={item.level} value={item.level}>{item.level} ({item.count})</option>)}
+                </select>
+            </label>
+            <label className="compact-field application-control">
+                <span className="sr-only">Aplicação</span>
+                <select value={props.application} onChange={(event) => props.onApplicationChange(event.target.value)}>
+                    <option value="">Todas as aplicações</option>
+                    {props.overview.applications.map((item) => <option key={item} value={item}>{item}</option>)}
                 </select>
             </label>
             <label className="compact-field source-control">
