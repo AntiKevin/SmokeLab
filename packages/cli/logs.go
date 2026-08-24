@@ -30,6 +30,7 @@ type ingestConfig struct {
 	onInvalid    string
 	batchSize    int
 	maxLineBytes int
+	application  string
 }
 
 const progressRefreshInterval = 100 * time.Millisecond
@@ -147,6 +148,7 @@ func newLogsIngestCommand() *cobra.Command {
 	flags.StringVar(&config.onInvalid, "on-invalid", "fail", "invalid line policy: fail or skip")
 	flags.IntVar(&config.batchSize, "batch-size", logs.DefaultBatchSize, "number of entries per database batch")
 	flags.IntVar(&config.maxLineBytes, "max-line-bytes", source.DefaultMaxLineBytes, "maximum NDJSON line size in bytes")
+	flags.StringVar(&config.application, "application", logs.DefaultApplication, "application that produced the logs")
 	return command
 }
 
@@ -176,6 +178,7 @@ func runLogsIngest(ctx context.Context, stderr io.Writer, config ingestConfig) e
 	result, err := logs.NewIngestService(repository).Ingest(ctx, input, logs.IngestOptions{
 		BatchSize:     config.batchSize,
 		InvalidPolicy: policy,
+		Application:   config.application,
 	})
 	if err != nil {
 		progress.abort()

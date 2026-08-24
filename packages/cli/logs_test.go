@@ -16,6 +16,8 @@ import (
 	"time"
 
 	"SmokeLab/packages/engine/logs"
+	"SmokeLab/packages/engine/storage"
+	"SmokeLab/packages/engine/storage/localdb"
 )
 
 func TestIngestProgressReportsCommittedEntriesInInteractiveTerminal(t *testing.T) {
@@ -107,5 +109,39 @@ func TestLogsIngestFileWritesSummaryToStderr(t *testing.T) {
 	}
 	if got, want := stderr.String(), "ingested: read=1 accepted=1 persisted=1 invalid=0 skipped=0 batches=1\n"; got != want {
 		t.Fatalf("stderr = %q, want %q", got, want)
+	}
+}
+
+func TestLogsIngestUsesApplicationFlag(t *testing.T) {
+	t.Parallel()
+
+	directory := t.TempDir()
+	inputPath := filepath.Join(directory, "input.ndjson")
+	databasePath := filepath.Join(directory, "logs.db")
+	if err := os.WriteFile(inputPath, []byte(`{"timestamp":"2026-08-22T13:14:15Z","level":"info","message":"started"}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	command := newRootCommand()
+	command.SetArgs([]string{"logs", "ingest", "--file", inputPath, "--db", databasePath, "--application", "api"})
+	if err := command.ExecuteContext(context.Background()); err != nil {
+		t.Fatalf("ExecuteContext() error = %v", err)
+	}
+
+	database, err := localdb.Open(context.Background(), databasePath)
+	if err != nil {
+		t.Fatalf("open database: %v", err)
+	}
+	defer database.Close()
+	repository, err := storage.NewLogReadRepository(context.Background(), database)
+	if err != nil {
+		t.Fatalf("new log read repository: %v", err)
+	}
+	page, err := repository.List(context.Background(), logs.ListLogsRequest{})
+	if err != nil {
+		t.Fatalf("list logs: %v", err)
+	}
+	if len(page.Items) != 1 || page.Items[0].Application != "api" {
+		t.Fatalf("ingested logs = %#v", page.Items)
 	}
 }
