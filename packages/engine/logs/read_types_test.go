@@ -14,8 +14,9 @@ func TestNormalizeListLogsRequestAppliesDefaultsAndCleansFilters(t *testing.T) {
 	localFrom := time.Date(2026, time.August, 23, 9, 0, 0, 0, time.FixedZone("BRT", -3*60*60))
 	request, err := NormalizeListLogsRequest(ListLogsRequest{
 		Filter: LogFilter{
-			Search: "  database unavailable  ",
-			Levels: []string{" info ", "", "info", " error "},
+			Search:       "  database unavailable  ",
+			Levels:       []string{" info ", "", "info", " error "},
+			Applications: []string{" api ", "", "api", "worker"},
 			Sources: []LogSource{
 				{Kind: " file ", Name: " app.log ", ID: " one "},
 				{},
@@ -44,6 +45,9 @@ func TestNormalizeListLogsRequestAppliesDefaultsAndCleansFilters(t *testing.T) {
 	if !reflect.DeepEqual(request.Filter.Levels, []string{"info", "error"}) {
 		t.Fatalf("normalized levels = %#v", request.Filter.Levels)
 	}
+	if !reflect.DeepEqual(request.Filter.Applications, []string{"api", "worker"}) {
+		t.Fatalf("normalized applications = %#v", request.Filter.Applications)
+	}
 	wantSources := []LogSource{{Kind: "file", Name: "app.log", ID: "one"}}
 	if !reflect.DeepEqual(request.Filter.Sources, wantSources) {
 		t.Fatalf("normalized sources = %#v, want %#v", request.Filter.Sources, wantSources)
@@ -63,7 +67,7 @@ func TestNormalizeListLogsRequestUsesAllDefaults(t *testing.T) {
 	if request.Page != 1 || request.PageSize != DefaultLogPageSize || request.SortBy != SortByTimestamp || request.SortDirection != SortDescending {
 		t.Fatalf("defaults not applied: %#v", request)
 	}
-	if request.Filter.Levels == nil || request.Filter.Sources == nil {
+	if request.Filter.Levels == nil || request.Filter.Applications == nil || request.Filter.Sources == nil {
 		t.Fatalf("normalized filter arrays must not be nil: %#v", request.Filter)
 	}
 }

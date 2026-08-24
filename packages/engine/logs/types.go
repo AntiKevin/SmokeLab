@@ -13,20 +13,25 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 )
 
 // DefaultBatchSize persists each accepted line as soon as it is read.
 const DefaultBatchSize = 1
 
+// DefaultApplication identifies logs whose application was not specified.
+const DefaultApplication = "default"
+
 // LogEntry is one validated structured log record.
 type LogEntry struct {
-	Timestamp  time.Time                  `json:"timestamp"`
-	Level      string                     `json:"level"`
-	Message    string                     `json:"message"`
-	Params     map[string]json.RawMessage `json:"params,omitempty"`
-	Source     SourceDescriptor           `json:"source"`
-	LineNumber int                        `json:"lineNumber"`
+	Timestamp   time.Time                  `json:"timestamp"`
+	Application string                     `json:"application"`
+	Level       string                     `json:"level"`
+	Message     string                     `json:"message"`
+	Params      map[string]json.RawMessage `json:"params,omitempty"`
+	Source      SourceDescriptor           `json:"source"`
+	LineNumber  int                        `json:"lineNumber"`
 }
 
 // SourceLine is one raw line emitted by a Source. Number is one-based when
@@ -82,6 +87,7 @@ const (
 type IngestOptions struct {
 	BatchSize     int
 	InvalidPolicy InvalidPolicy
+	Application   string
 }
 
 // IngestResult describes the work completed before ingestion returned.
@@ -123,8 +129,17 @@ func (o IngestOptions) normalized() (IngestOptions, error) {
 	if o.InvalidPolicy != InvalidPolicyFail && o.InvalidPolicy != InvalidPolicySkip {
 		return IngestOptions{}, fmt.Errorf("invalid invalid-line policy: %d", o.InvalidPolicy)
 	}
+	o.Application = normalizeApplication(o.Application)
 
 	return o, nil
+}
+
+func normalizeApplication(application string) string {
+	application = strings.TrimSpace(application)
+	if application == "" {
+		return DefaultApplication
+	}
+	return application
 }
 
 func isEndOfSource(err error) bool {

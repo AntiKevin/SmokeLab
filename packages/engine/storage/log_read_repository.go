@@ -75,7 +75,7 @@ func (r *LogReadRepository) List(ctx context.Context, request logs.ListLogsReque
 
 	sortExpression, direction := logOrder(normalized.SortBy, normalized.SortDirection)
 	query := `SELECT
-        id, timestamp, level, message, source_kind, source_name, source_id,
+        id, timestamp, level, message, application, source_kind, source_name, source_id,
         line_number, captured_at, params
     FROM logs` + where + " ORDER BY " + sortExpression + " " + direction + ", id " + direction + " LIMIT ? OFFSET ?"
 	queryArguments := append(append([]any(nil), arguments...), normalized.PageSize, (normalized.Page-1)*normalized.PageSize)
@@ -117,8 +117,9 @@ func (r *LogReadRepository) Overview(ctx context.Context) (logs.LogOverview, err
 	defer tx.Rollback()
 
 	overview := logs.LogOverview{
-		ByLevel: make([]logs.LevelCount, 0),
-		Sources: make([]logs.LogSource, 0),
+		ByLevel:      make([]logs.LevelCount, 0),
+		Applications: make([]string, 0),
+		Sources:      make([]logs.LogSource, 0),
 	}
 	if err := tx.QueryRowContext(ctx, "SELECT COUNT(*) FROM logs").Scan(&overview.Total); err != nil {
 		return logs.LogOverview{}, fmt.Errorf("count all logs: %w", err)
@@ -142,6 +143,26 @@ func (r *LogReadRepository) Overview(ctx context.Context) (logs.LogOverview, err
 	}
 	if err := levelRows.Close(); err != nil {
 		return logs.LogOverview{}, fmt.Errorf("close log levels: %w", err)
+	}
+
+	applicationRows, err := tx.QueryContext(ctx, "SELECT DISTINCT application FROM logs ORDER BY application COLLATE NOCASE, application")
+	if err != nil {
+		return logs.LogOverview{}, fmt.Errorf("query log applications: %w", err)
+	}
+	for applicationRows.Next() {
+		var application string
+		if err := applicationRows.Scan(&application); err != nil {
+			applicationRows.Close()
+			return logs.LogOverview{}, fmt.Errorf("scan log application: %w", err)
+		}
+		overview.Applications = append(overview.Applications, application)
+	}
+	if err := applicationRows.Err(); err != nil {
+		applicationRows.Close()
+		return logs.LogOverview{}, fmt.Errorf("iterate log applications: %w", err)
+	}
+	if err := applicationRows.Close(); err != nil {
+		return logs.LogOverview{}, fmt.Errorf("close log applications: %w", err)
 	}
 
 	sourceRows, err := tx.QueryContext(ctx, `SELECT DISTINCT source_kind, source_name, source_id
@@ -196,8 +217,8 @@ func (r *LogReadRepository) ready(ctx context.Context, operation string) error {
 }
 
 func buildLogPredicates(filter logs.LogFilter) ([]string, []any) {
-	predicates := make([]string, 0, 5)
-	arguments := make([]any, 0, len(filter.Levels)+len(filter.Sources)*3+3)
+	predicates := make([]string, 0, 6)
+	arguments := make([]any, 0, len(filter.Levels)+len(filter.Applications)+len(filter.Sources)*3+3)
 
 	if filter.Search != "" {
 		predicates = append(predicates, `message LIKE ? ESCAPE '\' COLLATE NOCASE`)
@@ -210,6 +231,14 @@ func buildLogPredicates(filter logs.LogFilter) ([]string, []any) {
 			arguments = append(arguments, level)
 		}
 		predicates = append(predicates, "level IN ("+strings.Join(placeholders, ", ")+")")
+	}
+	if len(filter.Applications) > 0 {
+		placeholders := make([]string, len(filter.Applications))
+		for index, application := range filter.Applications {
+			placeholders[index] = "?"
+			arguments = append(arguments, application)
+		}
+		predicates = append(predicates, "application IN ("+strings.Join(placeholders, ", ")+")")
 	}
 	if len(filter.Sources) > 0 {
 		sources := make([]string, 0, len(filter.Sources))
@@ -276,6 +305,7 @@ func scanLogRecord(scanner rowScanner) (logs.LogRecord, error) {
 		&timestampText,
 		&record.Level,
 		&record.Message,
+		&record.Application,
 		&record.Source.Kind,
 		&record.Source.Name,
 		&record.Source.ID,

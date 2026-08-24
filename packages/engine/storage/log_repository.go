@@ -22,13 +22,14 @@ INSERT INTO logs (
     timestamp,
     level,
     message,
+    application,
     source_kind,
     source_name,
     source_id,
     line_number,
     captured_at,
     params
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 // LogRepository persists structured log entries in the local database.
 type LogRepository struct {
@@ -102,6 +103,7 @@ func (r *LogRepository) Store(ctx context.Context, entries []logs.LogEntry) erro
 			entry.Timestamp.UTC().Format(time.RFC3339Nano),
 			entry.Level,
 			entry.Message,
+			logsApplication(entry.Application),
 			entry.Source.Kind,
 			entry.Source.Name,
 			entry.Source.ID,
@@ -117,6 +119,13 @@ func (r *LogRepository) Store(ctx context.Context, entries []logs.LogEntry) erro
 		return fmt.Errorf("commit log batch: %w", err)
 	}
 	return nil
+}
+
+func logsApplication(application string) string {
+	if application == "" {
+		return logs.DefaultApplication
+	}
+	return application
 }
 
 func marshalParams(params map[string]json.RawMessage) ([]byte, error) {

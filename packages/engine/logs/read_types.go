@@ -41,11 +41,12 @@ type LogSource struct {
 // LogFilter selects records for a list operation. Sources are combined with OR;
 // all other populated fields are combined with AND.
 type LogFilter struct {
-	Search  string      `json:"search,omitempty"`
-	Levels  []string    `json:"levels"`
-	Sources []LogSource `json:"sources"`
-	From    *time.Time  `json:"from,omitempty"`
-	To      *time.Time  `json:"to,omitempty"`
+	Search       string      `json:"search,omitempty"`
+	Levels       []string    `json:"levels"`
+	Applications []string    `json:"applications"`
+	Sources      []LogSource `json:"sources"`
+	From         *time.Time  `json:"from,omitempty"`
+	To           *time.Time  `json:"to,omitempty"`
 }
 
 // ListLogsRequest configures one deterministic page of persisted logs.
@@ -60,13 +61,14 @@ type ListLogsRequest struct {
 
 // LogRecord contains all metadata persisted for a structured log.
 type LogRecord struct {
-	ID         int64     `json:"id"`
-	Timestamp  time.Time `json:"timestamp"`
-	Level      string    `json:"level"`
-	Message    string    `json:"message"`
-	Source     LogSource `json:"source"`
-	LineNumber int       `json:"lineNumber"`
-	CapturedAt time.Time `json:"capturedAt"`
+	ID          int64     `json:"id"`
+	Timestamp   time.Time `json:"timestamp"`
+	Level       string    `json:"level"`
+	Message     string    `json:"message"`
+	Application string    `json:"application"`
+	Source      LogSource `json:"source"`
+	LineNumber  int       `json:"lineNumber"`
+	CapturedAt  time.Time `json:"capturedAt"`
 	// Params is a validated, compact JSON object encoded as text. Keeping the
 	// JSON text intact prevents JavaScript bindings from silently rounding
 	// integer values that exceed the language's safe numeric range.
@@ -92,6 +94,7 @@ type LevelCount struct {
 type LogOverview struct {
 	Total           int64        `json:"total"`
 	ByLevel         []LevelCount `json:"byLevel"`
+	Applications    []string     `json:"applications"`
 	Sources         []LogSource  `json:"sources"`
 	OldestTimestamp *time.Time   `json:"oldestTimestamp,omitempty"`
 	NewestTimestamp *time.Time   `json:"newestTimestamp,omitempty"`
@@ -102,6 +105,7 @@ type LogOverview struct {
 func NormalizeListLogsRequest(request ListLogsRequest) (ListLogsRequest, error) {
 	request.Filter.Search = strings.TrimSpace(request.Filter.Search)
 	request.Filter.Levels = normalizeLevels(request.Filter.Levels)
+	request.Filter.Applications = normalizeApplications(request.Filter.Applications)
 	request.Filter.Sources = normalizeSources(request.Filter.Sources)
 
 	if request.Filter.From != nil {
@@ -160,6 +164,23 @@ func normalizeLevels(levels []string) []string {
 		}
 		seen[level] = struct{}{}
 		result = append(result, level)
+	}
+	return result
+}
+
+func normalizeApplications(applications []string) []string {
+	result := make([]string, 0, len(applications))
+	seen := make(map[string]struct{}, len(applications))
+	for _, application := range applications {
+		application = strings.TrimSpace(application)
+		if application == "" {
+			continue
+		}
+		if _, exists := seen[application]; exists {
+			continue
+		}
+		seen[application] = struct{}{}
+		result = append(result, application)
 	}
 	return result
 }

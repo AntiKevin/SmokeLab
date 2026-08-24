@@ -169,6 +169,35 @@ func TestLogReadRepositoryFiltersByMultipleLevels(t *testing.T) {
 	}
 }
 
+func TestLogReadRepositoryFiltersAndListsApplications(t *testing.T) {
+	t.Parallel()
+
+	db, repository := openReadRepository(t)
+	insertStoredLog(t, db, storedLog{message: "api", application: "api"})
+	insertStoredLog(t, db, storedLog{message: "worker", application: "worker"})
+	insertStoredLog(t, db, storedLog{message: "default"})
+
+	page, err := repository.List(context.Background(), logs.ListLogsRequest{
+		Filter:        logs.LogFilter{Applications: []string{" worker ", "worker"}},
+		SortDirection: logs.SortAscending,
+	})
+	if err != nil {
+		t.Fatalf("List returned error: %v", err)
+	}
+	assertMessages(t, page.Items, "worker")
+	if page.Items[0].Application != "worker" {
+		t.Fatalf("application = %q, want worker", page.Items[0].Application)
+	}
+
+	overview, err := repository.Overview(context.Background())
+	if err != nil {
+		t.Fatalf("Overview returned error: %v", err)
+	}
+	if !reflect.DeepEqual(overview.Applications, []string{"api", "default", "worker"}) {
+		t.Fatalf("applications = %#v", overview.Applications)
+	}
+}
+
 func TestLogReadRepositoryTreatsSearchWildcardsLiterally(t *testing.T) {
 	t.Parallel()
 
@@ -399,13 +428,14 @@ func openReadRepository(t *testing.T) (*sql.DB, *LogReadRepository) {
 }
 
 type storedLog struct {
-	timestamp  string
-	level      string
-	message    string
-	source     logs.LogSource
-	lineNumber int
-	capturedAt string
-	params     string
+	timestamp   string
+	level       string
+	message     string
+	application string
+	source      logs.LogSource
+	lineNumber  int
+	capturedAt  string
+	params      string
 }
 
 func insertStoredLog(t *testing.T, db *sql.DB, record storedLog) {
@@ -418,6 +448,9 @@ func insertStoredLog(t *testing.T, db *sql.DB, record storedLog) {
 	}
 	if record.message == "" {
 		record.message = "message"
+	}
+	if record.application == "" {
+		record.application = logs.DefaultApplication
 	}
 	if record.source == (logs.LogSource{}) {
 		record.source = logs.LogSource{Kind: "file", Name: "default.log", ID: "default"}
@@ -432,12 +465,13 @@ func insertStoredLog(t *testing.T, db *sql.DB, record storedLog) {
 		record.params = `{}`
 	}
 	if _, err := db.Exec(`INSERT INTO logs (
-        timestamp, level, message, source_kind, source_name, source_id,
+        timestamp, level, message, application, source_kind, source_name, source_id,
         line_number, captured_at, params
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		record.timestamp,
 		record.level,
 		record.message,
+		record.application,
 		record.source.Kind,
 		record.source.Name,
 		record.source.ID,

@@ -44,14 +44,15 @@ func TestLogMigrationIsIdempotent(t *testing.T) {
 	if err := db.QueryRow("SELECT COUNT(*) FROM localdb_migrations").Scan(&migrationCount); err != nil {
 		t.Fatalf("count all log migrations: %v", err)
 	}
-	if migrationCount != 3 {
-		t.Fatalf("migration count = %d, want 3", migrationCount)
+	if migrationCount != 4 {
+		t.Fatalf("migration count = %d, want 4", migrationCount)
 	}
 	for _, index := range []string{
 		"logs_level_idx",
 		"logs_source_descriptor_idx",
 		"logs_timestamp_order_idx",
 		"logs_captured_at_order_idx",
+		"logs_application_idx",
 	} {
 		var indexCount int
 		if err := db.QueryRow("SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND name = ?", index).Scan(&indexCount); err != nil {
@@ -126,23 +127,25 @@ func TestLogRepositoryPersistsBatch(t *testing.T) {
 	}
 
 	var got struct {
-		timestamp  string
-		level      string
-		message    string
-		sourceKind string
-		sourceName string
-		sourceID   string
-		lineNumber int
-		capturedAt string
-		params     string
+		timestamp   string
+		level       string
+		message     string
+		application string
+		sourceKind  string
+		sourceName  string
+		sourceID    string
+		lineNumber  int
+		capturedAt  string
+		params      string
 	}
 	err = db.QueryRow(`SELECT
-        timestamp, level, message, source_kind, source_name, source_id,
+        timestamp, level, message, application, source_kind, source_name, source_id,
         line_number, captured_at, params
     FROM logs`).Scan(
 		&got.timestamp,
 		&got.level,
 		&got.message,
+		&got.application,
 		&got.sourceKind,
 		&got.sourceName,
 		&got.sourceID,
@@ -157,6 +160,7 @@ func TestLogRepositoryPersistsBatch(t *testing.T) {
 	if got.timestamp != entry.Timestamp.Format(time.RFC3339Nano) ||
 		got.level != entry.Level ||
 		got.message != entry.Message ||
+		got.application != logs.DefaultApplication ||
 		got.sourceKind != entry.Source.Kind ||
 		got.sourceName != entry.Source.Name ||
 		got.sourceID != entry.Source.ID ||

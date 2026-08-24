@@ -51,6 +51,14 @@ var migrations = []localdb.Migration{
 			"CREATE INDEX IF NOT EXISTS logs_captured_at_order_idx ON logs (" + logCapturedAtOrderExpressionV3 + ", id)",
 		},
 	},
+	{
+		Version: 4,
+		Name:    "add log application",
+		Statements: []string{
+			"ALTER TABLE logs ADD COLUMN application TEXT NOT NULL DEFAULT 'default'",
+			"CREATE INDEX IF NOT EXISTS logs_application_idx ON logs (application)",
+		},
+	},
 }
 
 // Migrate applies all local storage schema migrations.

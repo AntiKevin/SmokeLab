@@ -93,6 +93,7 @@ func (s *IngestService) Ingest(ctx context.Context, source Source, options Inges
 			continue
 		}
 
+		entry.Application = options.Application
 		entry.Source = descriptor
 		batch = append(batch, entry)
 		result.EntriesAccepted++
