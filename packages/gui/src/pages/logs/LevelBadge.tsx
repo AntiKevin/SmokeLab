@@ -1,4 +1,4 @@
-function levelClass(level: string): string {
+export function levelClass(level: string): string {
     const normalized = level.toLocaleLowerCase();
     if (["error", "fatal", "critical", "crit"].includes(normalized)) return "danger";
     if (["warn", "warning"].includes(normalized)) return "warning";

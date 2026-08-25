@@ -1,15 +1,16 @@
 import {useEffect, useMemo, useRef, useState} from "react";
-import {GetLogOverview, ListLogs} from "../../wailsjs/go/main/App";
+import {GetLogHighlightConfiguration, GetLogOverview, ListLogs, SaveLogHighlightSettings} from "../../wailsjs/go/main/App";
 import {logs as models} from "../../wailsjs/go/models";
 import {LogDetails} from "./logs/LogDetails";
 import {LogFilters} from "./logs/LogFilters";
+import {LogHighlightsDialog} from "./logs/LogHighlightsDialog";
 import {errorMessage, formatDate, sourceKey, toRFC3339} from "./logs/formatters";
 import {LogTable} from "./logs/LogTable";
-import type {LogOverview, LogPage, LogRecord} from "./logs/types";
+import type {ApplicationHighlight, HighlightSetting, LogOverview, LogPage, LogRecord} from "./logs/types";
 import "./LogsPage.css";
 
 const PAGE_SIZE = 25;
-const EMPTY_PAGE = new models.LogPage({items: [], total: 0, page: 1, pageSize: PAGE_SIZE, totalPages: 0});
+const EMPTY_PAGE = new models.LogPage({items: [], highlightColumns: [], total: 0, page: 1, pageSize: PAGE_SIZE, totalPages: 0});
 const EMPTY_OVERVIEW = new models.LogOverview({total: 0, byLevel: [], applications: [], sources: []});
 
 function LogsPage() {
@@ -30,6 +31,11 @@ function LogsPage() {
     const [error, setError] = useState("");
     const [overviewError, setOverviewError] = useState("");
     const [refreshToken, setRefreshToken] = useState(0);
+    const [highlightDialogOpen, setHighlightDialogOpen] = useState(false);
+    const [highlightConfiguration, setHighlightConfiguration] = useState<ApplicationHighlight[]>([]);
+    const [highlightLoading, setHighlightLoading] = useState(false);
+    const [highlightSaving, setHighlightSaving] = useState(false);
+    const [highlightError, setHighlightError] = useState("");
     const listRequestID = useRef(0);
     const overviewRequestID = useRef(0);
     const selectedRow = useRef<HTMLTableRowElement>(null);
@@ -141,6 +147,29 @@ function LogsPage() {
         setRefreshToken((value) => value + 1);
     }
 
+    function openHighlightConfiguration() {
+        setHighlightDialogOpen(true);
+        setHighlightConfiguration([]);
+        setHighlightLoading(true);
+        setHighlightError("");
+        GetLogHighlightConfiguration()
+            .then((result) => setHighlightConfiguration((result ?? []) as ApplicationHighlight[]))
+            .catch((reason) => setHighlightError(errorMessage(reason)))
+            .finally(() => setHighlightLoading(false));
+    }
+
+    function saveHighlightConfiguration(settings: HighlightSetting[]) {
+        setHighlightSaving(true);
+        setHighlightError("");
+        SaveLogHighlightSettings(settings)
+            .then(() => {
+                setHighlightDialogOpen(false);
+                setRefreshToken((value) => value + 1);
+            })
+            .catch((reason) => setHighlightError(errorMessage(reason)))
+            .finally(() => setHighlightSaving(false));
+    }
+
     return <section className="page logs-page" aria-labelledby="logs-title">
         <header className="logs-header">
             <div>
@@ -149,6 +178,7 @@ function LogsPage() {
             </div>
             <div className="header-actions">
                 <span className="logs-total"><strong>{overview.total.toLocaleString("pt-BR")}</strong> registros</span>
+                <button type="button" className="button" onClick={openHighlightConfiguration}>Configurar colunas</button>
                 <button type="button" className="button" disabled={loading || refreshing} onClick={refresh}>{refreshing ? "Atualizando…" : "Atualizar"}</button>
             </div>
         </header>
@@ -194,6 +224,14 @@ function LogsPage() {
             />
             {selected && <LogDetails log={selected} onClose={closeDetails}/>}
         </div>
+        {highlightDialogOpen && <LogHighlightsDialog
+            configuration={highlightConfiguration}
+            loading={highlightLoading}
+            saving={highlightSaving}
+            error={highlightError}
+            onClose={() => setHighlightDialogOpen(false)}
+            onSave={saveHighlightConfiguration}
+        />}
     </section>;
 }
 

@@ -64,3 +64,14 @@ export function formatJSONLossless(value: string): string {
 
     return output;
 }
+
+export function formatHighlightValue(value: string | undefined): string {
+    if (value === undefined) return "—";
+    if (!value.startsWith('"')) return value;
+    try {
+        const decoded: unknown = JSON.parse(value);
+        return typeof decoded === "string" ? decoded : value;
+    } catch {
+        return value;
+    }
+}

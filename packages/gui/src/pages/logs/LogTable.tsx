@@ -1,5 +1,5 @@
-import {formatDate, sourceLabel} from "./formatters";
-import {LevelBadge} from "./LevelBadge";
+import {formatDate, formatHighlightValue, sourceLabel} from "./formatters";
+import {LevelBadge, levelClass} from "./LevelBadge";
 import type {LogOverview, LogPage, LogRecord} from "./types";
 
 type LogTableProps = {
@@ -19,6 +19,8 @@ type LogTableProps = {
 export function LogTable(props: LogTableProps) {
     const rangeStart = props.page.total === 0 ? 0 : (props.page.page - 1) * props.page.pageSize + 1;
     const rangeEnd = Math.min(props.page.page * props.page.pageSize, props.page.total);
+    const highlightColumns = props.page.highlightColumns ?? [];
+    const tableMinWidth = 707 + highlightColumns.length * 180;
 
     return <div className="logs-table-panel">
         <div className="table-meta" aria-live="polite">
@@ -37,10 +39,22 @@ export function LogTable(props: LogTableProps) {
                     <span>{props.overview.total === 0 ? "Importe logs pela CLI para começar." : "Tente remover alguns filtros."}</span>
                     {props.hasFilters && <button type="button" className="button" onClick={props.onClearFilters}>Limpar filtros</button>}
                 </div>
-                : <table className="logs-table">
+                : <table className="logs-table" style={{minWidth: `${tableMinWidth}px`}}>
                     <caption className="sr-only">Lista de logs. Pressione Enter em uma linha para ver detalhes.</caption>
-                    <thead><tr><th>Horário</th><th>Nível</th><th>Mensagem</th><th>Origem</th></tr></thead>
-                    <tbody>{props.page.items.map((log) => <LogRow key={log.id} log={log} selected={props.selected?.id === log.id} onSelect={props.onSelect}/>)}</tbody>
+                    <thead><tr>
+                        <th className="time-column">Horário</th>
+                        <th className="level-column">Nível</th>
+                        {highlightColumns.map((column) => <th className="highlight-column" key={column.path} title={column.label}>{column.label}</th>)}
+                        <th>Mensagem</th>
+                        <th className="source-column">Origem</th>
+                    </tr></thead>
+                    <tbody>{props.page.items.map((log) => <LogRow
+                        key={log.id}
+                        log={log}
+                        highlightColumns={highlightColumns}
+                        selected={props.selected?.id === log.id}
+                        onSelect={props.onSelect}
+                    />)}</tbody>
                 </table>}
         </div>
         <nav className="pagination" aria-label="Paginação dos logs">
@@ -51,7 +65,12 @@ export function LogTable(props: LogTableProps) {
     </div>;
 }
 
-function LogRow({log, selected, onSelect}: { log: LogRecord; selected: boolean; onSelect: LogTableProps["onSelect"] }) {
+function LogRow({log, highlightColumns, selected, onSelect}: {
+    log: LogRecord;
+    highlightColumns: NonNullable<LogPage["highlightColumns"]>;
+    selected: boolean;
+    onSelect: LogTableProps["onSelect"];
+}) {
     function select(row: HTMLTableRowElement) {
         onSelect(log, row);
     }
@@ -68,9 +87,15 @@ function LogRow({log, selected, onSelect}: { log: LogRecord; selected: boolean; 
             }
         }}
     >
-        <td><time dateTime={log.timestamp}>{formatDate(log.timestamp)}</time></td>
-        <td><LevelBadge level={log.level}/></td>
-        <td className="truncate" title={log.message}>{log.message}</td>
-        <td className="truncate muted-cell" title={sourceLabel(log.source)}>{sourceLabel(log.source)}</td>
+        <td className="time-column"><time dateTime={log.timestamp}>{formatDate(log.timestamp)}</time></td>
+        <td className="level-column"><LevelBadge level={log.level}/></td>
+        {highlightColumns.map((column) => {
+            const value = formatHighlightValue(log.highlightValues?.[column.path]);
+            return <td className="truncate highlight-cell" data-label={column.label} key={column.path} title={value}>
+                <span className={`highlight-badge ${levelClass(log.level)}`}>{value}</span>
+            </td>;
+        })}
+        <td className="truncate message-column" title={log.message}>{log.message}</td>
+        <td className="truncate muted-cell source-column" title={sourceLabel(log.source)}>{sourceLabel(log.source)}</td>
     </tr>;
 }
