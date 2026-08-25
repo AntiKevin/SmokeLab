@@ -59,6 +59,18 @@ var migrations = []localdb.Migration{
 			"CREATE INDEX IF NOT EXISTS logs_application_idx ON logs (application)",
 		},
 	},
+	{
+		Version: 5,
+		Name:    "add log application highlights",
+		Statements: []string{
+			`CREATE TABLE log_application_highlights (
+                application TEXT PRIMARY KEY,
+                field_path TEXT NOT NULL,
+                CHECK (length(trim(application)) > 0),
+                CHECK (substr(field_path, 1, 1) = '/')
+            )`,
+		},
+	},
 }
 
 // Migrate applies all local storage schema migrations.

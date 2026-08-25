@@ -103,6 +103,18 @@ type readStub struct {
 	err      error
 }
 
+func (*readStub) HighlightConfiguration(context.Context) ([]ApplicationHighlight, error) {
+	return []ApplicationHighlight{}, nil
+}
+
+func (*readStub) HighlightSettings(context.Context, []string) ([]HighlightSetting, error) {
+	return []HighlightSetting{}, nil
+}
+
+func (*readStub) SaveHighlightSettings(context.Context, []HighlightSetting) error {
+	return nil
+}
+
 func (s *readStub) List(_ context.Context, request ListLogsRequest) (LogPage, error) {
 	s.request = request
 	return s.page, s.err

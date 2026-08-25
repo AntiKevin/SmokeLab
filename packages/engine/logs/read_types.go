@@ -73,15 +73,26 @@ type LogRecord struct {
 	// JSON text intact prevents JavaScript bindings from silently rounding
 	// integer values that exceed the language's safe numeric range.
 	Params string `json:"params"`
+	// HighlightValues contains compact JSON values keyed by the configured
+	// canonical field path. Missing fields are omitted.
+	HighlightValues map[string]string `json:"highlightValues"`
+}
+
+// LogHighlightColumn describes one dynamic table column shared by every
+// application configured with the same canonical field path.
+type LogHighlightColumn struct {
+	Path  string `json:"path"`
+	Label string `json:"label"`
 }
 
 // LogPage is one page together with the total matching the same filters.
 type LogPage struct {
-	Items      []LogRecord `json:"items"`
-	Total      int64       `json:"total"`
-	Page       int         `json:"page"`
-	PageSize   int         `json:"pageSize"`
-	TotalPages int         `json:"totalPages"`
+	Items            []LogRecord          `json:"items"`
+	HighlightColumns []LogHighlightColumn `json:"highlightColumns"`
+	Total            int64                `json:"total"`
+	Page             int                  `json:"page"`
+	PageSize         int                  `json:"pageSize"`
+	TotalPages       int                  `json:"totalPages"`
 }
 
 // LevelCount is the number of persisted records for one exact level.

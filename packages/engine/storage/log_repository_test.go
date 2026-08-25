@@ -44,8 +44,15 @@ func TestLogMigrationIsIdempotent(t *testing.T) {
 	if err := db.QueryRow("SELECT COUNT(*) FROM localdb_migrations").Scan(&migrationCount); err != nil {
 		t.Fatalf("count all log migrations: %v", err)
 	}
-	if migrationCount != 4 {
-		t.Fatalf("migration count = %d, want 4", migrationCount)
+	if migrationCount != 5 {
+		t.Fatalf("migration count = %d, want 5", migrationCount)
+	}
+	var highlightTableCount int
+	if err := db.QueryRow("SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = ?", "log_application_highlights").Scan(&highlightTableCount); err != nil {
+		t.Fatalf("find log highlight table: %v", err)
+	}
+	if highlightTableCount != 1 {
+		t.Fatalf("log highlight table count = %d, want 1", highlightTableCount)
 	}
 	for _, index := range []string{
 		"logs_level_idx",
