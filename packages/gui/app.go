@@ -139,3 +139,50 @@ func (a *App) GetLogOverview() (logs.LogOverview, error) {
 	}
 	return overview, nil
 }
+
+// GetLogHighlightConfiguration returns detected fields and saved selections for
+// the configuration panel.
+func (a *App) GetLogHighlightConfiguration() ([]logs.ApplicationHighlight, error) {
+	a.mu.RLock()
+	if a.startupErr != nil {
+		err := a.startupErr
+		a.mu.RUnlock()
+		return nil, err
+	}
+	if a.ctx == nil || a.logReadService == nil {
+		a.mu.RUnlock()
+		return nil, errors.New("o serviço de leitura de logs não está disponível")
+	}
+	ctx := a.ctx
+	service := a.logReadService
+	a.mu.RUnlock()
+
+	configuration, err := service.HighlightConfiguration(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("não foi possível carregar as colunas destacadas: %w", err)
+	}
+	return configuration, nil
+}
+
+// SaveLogHighlightSettings persists the highlighted field selected for each
+// application.
+func (a *App) SaveLogHighlightSettings(settings []logs.HighlightSetting) error {
+	a.mu.RLock()
+	if a.startupErr != nil {
+		err := a.startupErr
+		a.mu.RUnlock()
+		return err
+	}
+	if a.ctx == nil || a.logReadService == nil {
+		a.mu.RUnlock()
+		return errors.New("o serviço de leitura de logs não está disponível")
+	}
+	ctx := a.ctx
+	service := a.logReadService
+	a.mu.RUnlock()
+
+	if err := service.SaveHighlightSettings(ctx, settings); err != nil {
+		return fmt.Errorf("não foi possível salvar as colunas destacadas: %w", err)
+	}
+	return nil
+}

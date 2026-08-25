@@ -40,6 +40,18 @@ func (*cancelAwareReader) Overview(context.Context) (logs.LogOverview, error) {
 	return logs.LogOverview{}, nil
 }
 
+func (*cancelAwareReader) HighlightConfiguration(context.Context) ([]logs.ApplicationHighlight, error) {
+	return []logs.ApplicationHighlight{}, nil
+}
+
+func (*cancelAwareReader) HighlightSettings(context.Context, []string) ([]logs.HighlightSetting, error) {
+	return []logs.HighlightSetting{}, nil
+}
+
+func (*cancelAwareReader) SaveHighlightSettings(context.Context, []logs.HighlightSetting) error {
+	return nil
+}
+
 func TestListLogsCancelsPreviousRequest(t *testing.T) {
 	reader := &cancelAwareReader{
 		started:  make(chan struct{}),

@@ -1,5 +1,68 @@
 export namespace logs {
 	
+	export class HighlightField {
+	    path: string;
+	    label: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new HighlightField(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.path = source["path"];
+	        this.label = source["label"];
+	    }
+	}
+	export class ApplicationHighlight {
+	    application: string;
+	    fieldPath: string;
+	    fields: HighlightField[];
+	
+	    static createFrom(source: any = {}) {
+	        return new ApplicationHighlight(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.application = source["application"];
+	        this.fieldPath = source["fieldPath"];
+	        this.fields = this.convertValues(source["fields"], HighlightField);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
+	export class HighlightSetting {
+	    application: string;
+	    fieldPath: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new HighlightSetting(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.application = source["application"];
+	        this.fieldPath = source["fieldPath"];
+	    }
+	}
 	export class LevelCount {
 	    level: string;
 	    count: number;
@@ -111,6 +174,20 @@ export namespace logs {
 		}
 	}
 	
+	export class LogHighlightColumn {
+	    path: string;
+	    label: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new LogHighlightColumn(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.path = source["path"];
+	        this.label = source["label"];
+	    }
+	}
 	export class LogOverview {
 	    total: number;
 	    byLevel: LevelCount[];
@@ -165,6 +242,7 @@ export namespace logs {
 	    // Go type: time
 	    capturedAt: any;
 	    params: string;
+	    highlightValues: Record<string, string>;
 	
 	    static createFrom(source: any = {}) {
 	        return new LogRecord(source);
@@ -181,6 +259,7 @@ export namespace logs {
 	        this.lineNumber = source["lineNumber"];
 	        this.capturedAt = this.convertValues(source["capturedAt"], null);
 	        this.params = source["params"];
+	        this.highlightValues = source["highlightValues"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -203,6 +282,7 @@ export namespace logs {
 	}
 	export class LogPage {
 	    items: LogRecord[];
+	    highlightColumns: LogHighlightColumn[];
 	    total: number;
 	    page: number;
 	    pageSize: number;
@@ -215,6 +295,7 @@ export namespace logs {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.items = this.convertValues(source["items"], LogRecord);
+	        this.highlightColumns = this.convertValues(source["highlightColumns"], LogHighlightColumn);
 	        this.total = source["total"];
 	        this.page = source["page"];
 	        this.pageSize = source["pageSize"];
