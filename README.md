@@ -16,7 +16,10 @@ e reproduzir cenarios de integracao, mais simples de executar e manter.
 > O SmokeLab esta em desenvolvimento ativo. A ingestao de logs pela CLI ja e
 > funcional, e os registros persistidos ja podem ser explorados pela interface
 > desktop. Outras ferramentas ainda estao evoluindo.
+### GUI
+<img src="./docs/images/img_1.png">
 
+### CLI
 <img src="./docs/images/img.png">
 
 ## Recursos
