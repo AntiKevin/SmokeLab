@@ -246,7 +246,14 @@ carrega os logs mais recentes. A tela permite:
 - navegar por paginas com ordenacao deterministica dos registros mais recentes;
 - selecionar um log para inspecionar origem, linha, horario de captura e
   `params` completos;
+- configurar uma coluna destacada por aplicacao a partir dos campos encontrados
+  em `params`, incluindo campos aninhados;
 - atualizar os dados ou limpar todos os filtros sem recarregar a janela.
+
+O botao **Configurar colunas** detecta os campos disponiveis em cada aplicacao e
+salva a escolha no banco local. Aplicacoes configuradas com o mesmo caminho
+compartilham uma coluna; caminhos diferentes geram colunas separadas. Listas sao
+exibidas como JSON compacto e campos ausentes aparecem como `—`.
 
 Um banco ainda inexistente e criado pela infraestrutura local do engine e
 aparece como um estado vazio amigavel. A ingestao continua sendo feita somente
